@@ -1,0 +1,110 @@
+
+vineet#A!1
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Validation and Database Save</title>
+    <script src="script.js"></script>
+</head>
+<body>
+    <h1>Form Validation and Database Save</h1>
+    <form action="save_data.php" method="POST" onsubmit="return validateForm()">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br><br>
+        
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required>
+        <br><br>
+        
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select>
+        <br><br>
+        
+        <label for="hobbies">Hobbies:</label><br>
+        <input type="checkbox" id="hobby1" name="hobbies[]" value="reading"> Reading<br>
+        <input type="checkbox" id="hobby2" name="hobbies[]" value="painting"> Painting<br>
+        <input type="checkbox" id="hobby3" name="hobbies[]" value="music"> Music<br>
+        <br>
+        
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+function validateForm() {
+    var name = document.getElementById("name").value;
+    var age = document.getElementById("age").value;
+    var gender = document.getElementById("gender").value;
+    var hobbies = document.getElementsByName("hobbies[]");
+
+    if (name === "" || age === "" || gender === "") {
+        alert("Please fill in all fields.");
+        return false;
+    }
+
+    if (age <= 0) {
+        alert("Age must be a positive number.");
+        return false;
+    }
+
+    var checkedHobbies = false;
+    for (var i = 0; i < hobbies.length; i++) {
+        if (hobbies[i].checked) {
+            checkedHobbies = true;
+            break;
+        }
+    }
+
+    if (!checkedHobbies) {
+        alert("Please select at least one hobby.");
+        return false;
+    }
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+<?php
+$servername = "localhost";
+$username = "your_username";
+$password = "your_password";
+$dbname = "your_database";
+
+$name = $_POST["name"];
+$age = $_POST["age"];
+$gender = $_POST["gender"];
+$hobbies = implode(", ", $_POST["hobbies"]);
+
+// Validate age again in PHP
+if ($age <= 0) {
+    die("Age must be a positive number.");
+}
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Insert data into the database
+$sql = "INSERT INTO users (name, age, gender, hobbies) VALUES ('$name', '$age', '$gender', '$hobbies')";
+
+if ($conn->query($sql) === TRUE) {
+    echo "Data saved successfully.";
+} else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+}
+
+$conn->close();
+?>
